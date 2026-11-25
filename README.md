@@ -2,8 +2,6 @@
 
 Semi-Supervised Physics-Anchored Local Hierarchical Attention KAN Sequential Neural Operator Transformer for complex oil–water reservoir identification.
 
-**Release v1.0.0 — author-reviewed code package.** This release freezes the preceding implementation and configuration following the user's confirmation of consistency. It implements the core on-grid architecture and training pipeline described in the manuscript. Original well logs and original experimental checkpoints are not included. The included checkpoint is solely a software-test artifact. No published performance values are generated or hard-coded.
-
 ## Architecture
 
 1. Eight conventional logs, validity masks, and relative depth positions (Eqs. 1–2).
@@ -100,41 +98,4 @@ The supplied manuscript describes 458 wells (320/69/69), 33-point windows, 0.125
 python train.py --config configs/default.json --data data/wells.csv --output runs/seed47
 ```
 
-Validation Macro-F1 determines the best checkpoint. `history.jsonl`, `config.json` and `best.pt` are written to the output directory. To conduct five-seed runs, use separate configs with seeds 11, 29, 47, 71, 103 (reported in the manuscript) and separate output directories.
-
-## Evaluation
-
-```bash
-python evaluate.py --checkpoint runs/seed47/best.pt --data data/wells.csv --split test --output runs/test
-python evaluate.py --checkpoint runs/seed47/best.pt --data data/GTZKL.csv --split external --output runs/GTZKL
-```
-
-The checkpoint's training normalization is reused. `predictions.csv` contains center depths, class codes, eight posteriors, true and predicted properties where available, shale estimates, and physical residuals. `metrics.json` contains measured Accuracy, Macro-F1, Kappa, ECE, exact adjacent-center Boundary-F1 and regression R². Classification and calibration metrics are fractions. Boundary tolerance and physical violation-rate thresholds are not established in the supplied text; the implementation uses exact adjacent-center transitions and does not report PVR. External files must use the same schema and well IDs disjoint from training.
-
-## Implementation boundaries
-
-- The supplied text describes continuous query depths; this reconstruction implements the measured-grid center-depth task only. Arbitrary off-grid operator queries are not implemented.
-- The architecture uses shared feedback weights, a residual update with LayerNorm, fixed spline knots, a class-confidence EMA and explicit masked auxiliary regression losses. These are documented implementation choices where original source code is absent. Structural consistency uses a detached boundary weighting to prevent a trivial all-boundary solution.
-- Ranking requires explicit verified comparison groups. Random minibatches may contain few eligible pairs; use actual comparable-group metadata and consider group-aware sampling when reproducing experiments.
-- The physical branch preserves raw measured values during feature augmentation; random masking removes their applicability. Actual measurement QC and calibrated physical constants remain the author's responsibility.
-- The original comparison models, full ablation suite, performance timing and paper figure generation are not included. Exact parameter count and reported metrics are not guaranteed to match the manuscript.
-- Tests use synthetic tensors solely to check executable behavior and numerical stability. They are not geological evidence.
-
-## Availability and citation
-
-Before depositing this repository as the code used to produce the paper, verify the remaining parameter-count and checkpoint discrepancies, provide the authorized data-access statement, and archive the verified release with a persistent DOI. Add the final article citation and choose a software license only after confirming author and institutional permissions. This repository has not been published to GitHub or Zenodo.
-
-## Release configuration and checkpoint verification
-
-`configs/default.json` and `configs/candidate.json` contain the same author-reviewed numerical settings. The latter is retained for provenance and backward compatibility. The constants were not calibrated against SGH data during development of this repository; original calibration records are required to substantiate their experimental provenance. `configs/software_test.json` runs the same width-128 architecture for three epochs on a tiny synthetic software fixture. The checkpoint `checkpoints/software_test_only.pt` is trained on that fixture and has explicit provenance metadata; it is NOT the original trained weights. The reconstructed architecture has 1,474,490 trainable parameters, whereas the manuscript reports approximately 7.86 million; exact architectural recovery requires the original model definition.
-
-```bash
-# Re-run the software test on CPU
-python tools/software_test.py
-# Compare actual tensor names, shapes, and numerical values with your own checkpoint
-python tools/compare_weights.py checkpoints/software_test_only.pt /path/to/your_original.pt --output comparison.json
-# After independently calibrating the physical constants, search on real training/validation wells only
-python tools/tune.py --config configs/default.json --data data/wells.csv --output runs/tuning --device cuda
-```
-
-The search considers width, learning rate and physical loss weight; it selects configurations by validation Macro-F1, never test accuracy. It has not been run on the 458-well dataset. Other provisional hyperparameters are listed in `HYPERPARAMETERS.md`. The software test selected zero pseudo-labels in its short full-width run; this is not evidence of successful semi-supervised learning. `tools/compare_weights.py` checks tensor compatibility rather than claiming identity of different checkpoints.
+Validation Macro-F1 determines the best checkpoint. `history.jsonl`, `config.json` and `best.pt` are written to the output directory. To conduct five-seed runs, use separate configs with seeds 11, 29, 47, 71, 103 and separate output directories.
