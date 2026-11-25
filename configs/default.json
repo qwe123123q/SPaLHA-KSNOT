@@ -1,0 +1,60 @@
+{
+  "seed": 47,
+  "window": {
+    "window": 33,
+    "stride": 1,
+    "delta": 0.125
+  },
+  "model": {
+    "hidden": 128,
+    "iterations": 3,
+    "radii": [
+      2,
+      4,
+      8
+    ],
+    "spline_intervals": 5,
+    "residual_penalty": 0.5,
+    "physics": {
+      "phi_max": 0.4,
+      "rho_ma": 2.65,
+      "rho_w": 1.0,
+      "rho_o": 0.8,
+      "rw": 0.1,
+      "a": 1.0,
+      "m": 2.0,
+      "n": 2.0,
+      "s_rho": 0.1,
+      "s_rt": 1.0,
+      "gamma": 2.0
+    }
+  },
+  "batch_size": 32,
+  "epochs": 100,
+  "patience": 15,
+  "learning_rate": 0.001,
+  "weight_decay": 0.0001,
+  "ema_decay": 0.99,
+  "confidence_threshold": 0.9,
+  "weak_augmentation": {
+    "noise": 0.01,
+    "amplitude": 0.01,
+    "drop": 0.02
+  },
+  "strong_augmentation": {
+    "noise": 0.05,
+    "amplitude": 0.05,
+    "drop": 0.1
+  },
+  "loss": {
+    "residual_threshold": 2.0,
+    "rank_margin": 0.1,
+    "weights": {
+      "consistency": 1.0,
+      "physics": 0.1,
+      "structural": 0.1,
+      "ranking": 0.1,
+      "auxiliary": 1.0
+    }
+  }
+}
